@@ -3,7 +3,7 @@ package oeztuerk_kuljancic;
 public class Prototyp {
 
 	public static void main(String[] args) {
-//		//var metadata = require('jdbc-metadata');
+		//var metadata = require('jdbc-metadata');
 //
 //		var jdbcConfig = {
 //		    libpath: __dirname + '/../jar/mysql-connector-java-5.1.32-bin.jar',
