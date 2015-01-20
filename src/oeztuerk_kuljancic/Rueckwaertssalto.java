@@ -1,5 +1,6 @@
 package oeztuerk_kuljancic;
 
+import java.awt.Font;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -25,13 +26,14 @@ public class Rueckwaertssalto {
 	public static void main(String[] args) {
 		Connection connection;
 		Statement stmt;
-		ResultSet rSet;
+		ResultSet rSet,rSet2,rSet3;
+		//DatabaseMetaData db;
 
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
 		String p_ = "Fener1907";
-		String d_= "tvprog_3bhit";
+		String d_= "premiere";
 
 		//Ausgabeschreiber
 		PrintWriter ausgabe;
@@ -81,14 +83,30 @@ public class Rueckwaertssalto {
 			//ausgabe=ausgabedatei
 			ausgabe= new PrintWriter("ausgabe.txt", "UTF-8");
 
+			java.sql.DatabaseMetaData meta = connection.getMetaData();
+
 			List<String> tabellen=new ArrayList<String>();
+
+
 			while (rSet.next()) {
 				tabellen.add(rSet.getString(1));
 			} 	
 
+			String[] pk=new String[tabellen.size()];
+			String[] fk=new String[tabellen.size()];
+			int c=0;
+			for(int k=0;k<tabellen.size();k++){
+				rSet2=meta.getPrimaryKeys(null, null, tabellen.get(k));
+				while (rSet2.next()) {
+					pk[c] = ""+rSet2.getString("COLUMN_NAME");
+					c++;
+				}
+			}
+//			
+
+
 
 			String a[]=new String[10];
-			String neu[]=new String[10];
 			for(int h=0;h<tabellen.size();h++){
 				a[h]="";
 			}
@@ -101,27 +119,24 @@ public class Rueckwaertssalto {
 					a[co]=a[co]+rSet.getString(1)+",";
 				}
 			}
-	
+
 			for(int h=0;h<tabellen.size();h++){
 				hilf[h]="";
 			}
-			
-			
+
+
 			for(int k=0;k<tabellen.size();k++){
 				for(int j=0;j<a[k].length()-1;j++){
 					hilf[k]=hilf[k]+a[k].charAt(j);
 				}
 			}
 			a=hilf;
-			
-
-
-
 
 			for(int x=0;x<tabellen.size();x++){
-				ausgabe.println(tabellen.get(x)+"("+a[x]+")");
+				System.out.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
+				ausgabe.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
 			}
-
+			
 			ausgabe.close();//File-schlieﬂen
 
 
