@@ -31,7 +31,7 @@ public class Rueckwaertssalto {
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
 		String p_ = "Fener1907";
-		String d_= "rueck";
+		String d_= "tvprog_3bhit";
 
 		//Ausgabeschreiber
 		PrintWriter ausgabe;
@@ -83,7 +83,7 @@ public class Rueckwaertssalto {
 
 			List<String> tabellen=new ArrayList<String>();
 			while (rSet.next()) {
-				tabellen.add(rSet.getString(1));	
+				tabellen.add(rSet.getString(1));
 			} 	
 
 
@@ -101,24 +101,25 @@ public class Rueckwaertssalto {
 					a[co]=a[co]+rSet.getString(1)+",";
 				}
 			}
-			
+	
 			for(int h=0;h<tabellen.size();h++){
 				hilf[h]="";
 			}
 			
-			for(int k=0;k<a.length;k++){
+			
+			for(int k=0;k<tabellen.size();k++){
 				for(int j=0;j<a[k].length()-1;j++){
 					hilf[k]=hilf[k]+a[k].charAt(j);
 				}
 			}
 			a=hilf;
-
+			
 
 
 
 
 			for(int x=0;x<tabellen.size();x++){
-				System.out.println(tabellen.get(x)+"("+a[x]+")");
+				ausgabe.println(tabellen.get(x)+"("+a[x]+")");
 			}
 
 			ausgabe.close();//File-schließen
