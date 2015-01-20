@@ -26,7 +26,7 @@ public class Rueckwaertssalto {
 		Connection connection;
 		Statement stmt;
 		ResultSet rSet;
-		
+
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
@@ -86,22 +86,35 @@ public class Rueckwaertssalto {
 				tabellen.add(rSet.getString(1));	
 			} 	
 
-			String ausgabe2="";
-			for(int b=0;b<tabellen.size();b++){
-				rSet=stmt.executeQuery("DESCRIBE "+tabellen.get(b));
-				while(rSet.next()){
-					//	System.out.print(","+rSet.getString(1));
-				}
-			}
 
 			String a[]=new String[10];
-			
+			String neu[]=new String[10];
+			for(int h=0;h<tabellen.size();h++){
+				a[h]="";
+			}
+
+			String  [] hilf=new String[a.length];
+
 			for(int co=0;co<tabellen.size();co++){
 				rSet=stmt.executeQuery("DESCRIBE "+tabellen.get(co));
 				while(rSet.next()){
-					a[co]=a[co]+","+rSet.getString(1);
+					a[co]=a[co]+rSet.getString(1)+",";
 				}
 			}
+			
+			for(int h=0;h<tabellen.size();h++){
+				hilf[h]="";
+			}
+			
+			for(int k=0;k<a.length;k++){
+				for(int j=0;j<a[k].length()-1;j++){
+					hilf[k]=hilf[k]+a[k].charAt(j);
+				}
+			}
+			a=hilf;
+
+
+
 
 
 			for(int x=0;x<tabellen.size();x++){
