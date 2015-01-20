@@ -26,9 +26,7 @@ public class Rueckwaertssalto {
 		Connection connection;
 		Statement stmt;
 		ResultSet rSet;
-		ResultSetMetaData rsmd;
-
-		boolean ausgabedatei=false;
+		
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
@@ -80,8 +78,6 @@ public class Rueckwaertssalto {
 			//Prüfen ob Tabellenname und die erwünschten Spalten vorhanden sind
 
 			rSet = stmt.executeQuery("SHOW TABLES");
-			rsmd=(ResultSetMetaData) rSet.getMetaData();
-
 			//ausgabe=ausgabedatei
 			ausgabe= new PrintWriter("ausgabe.txt", "UTF-8");
 
