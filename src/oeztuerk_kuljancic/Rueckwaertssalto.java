@@ -26,14 +26,14 @@ public class Rueckwaertssalto {
 	public static void main(String[] args) {
 		Connection connection;
 		Statement stmt;
-		ResultSet rSet,rSet2,rSet3;
+		ResultSet rSet,rSet2;
 		//DatabaseMetaData db;
 
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
 		String p_ = "Fener1907";
-		String d_= "premiere";
+		String d_= "rueck";
 
 		//Ausgabeschreiber
 		PrintWriter ausgabe;
@@ -82,61 +82,61 @@ public class Rueckwaertssalto {
 			rSet = stmt.executeQuery("SHOW TABLES");
 			//ausgabe=ausgabedatei
 			ausgabe= new PrintWriter("ausgabe.txt", "UTF-8");
-
+			//DIent zum ausfindig machen der PK und FKs
 			java.sql.DatabaseMetaData meta = connection.getMetaData();
-
+			//dynamische Liste für Anzahl der Tabellen
 			List<String> tabellen=new ArrayList<String>();
 
-
+			//Tabellennamen in ArrayList speichern
 			while (rSet.next()) {
 				tabellen.add(rSet.getString(1));
 			} 	
-
+			
+			//pk-Array beinhaltet alle PK
 			String[] pk=new String[tabellen.size()];
-			String[] fk=new String[tabellen.size()];
-			int c=0;
+			int c=0;//Counter für Array
+			
 			for(int k=0;k<tabellen.size();k++){
 				rSet2=meta.getPrimaryKeys(null, null, tabellen.get(k));
 				while (rSet2.next()) {
-					pk[c] = ""+rSet2.getString("COLUMN_NAME");
+					pk[c] =""+rSet2.getString("COLUMN_NAME");
 					c++;
 				}
 			}
-//			
-
-
-
+			
+			//Dieses Array beinhaltet später alle Attribute
 			String a[]=new String[10];
 			for(int h=0;h<tabellen.size();h++){
 				a[h]="";
 			}
-
+			//Dient zur Fehlerbehebung
 			String  [] hilf=new String[a.length];
-
+			//Attribute in Array speichern
 			for(int co=0;co<tabellen.size();co++){
 				rSet=stmt.executeQuery("DESCRIBE "+tabellen.get(co));
 				while(rSet.next()){
 					a[co]=a[co]+rSet.getString(1)+",";
 				}
 			}
-
+			//Hilfarray initialisieren
 			for(int h=0;h<tabellen.size();h++){
 				hilf[h]="";
 			}
 
-
+			//Hilfarray fehlerbeheben
 			for(int k=0;k<tabellen.size();k++){
 				for(int j=0;j<a[k].length()-1;j++){
 					hilf[k]=hilf[k]+a[k].charAt(j);
 				}
 			}
 			a=hilf;
-
+			
+			//Ausgabe in Konsole und in Textfile
 			for(int x=0;x<tabellen.size();x++){
 				System.out.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
 				ausgabe.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
 			}
-			
+			//Textfile schließen
 			ausgabe.close();//File-schließen
 
 
@@ -148,15 +148,7 @@ public class Rueckwaertssalto {
 			System.out.println("Parameter ungültig: \n-h ... Hostname des DBMS. Standard: localhost"
 					+"\n-u ... Benutzername. Standard: Benutzername des im Betriebssystem angemeldeten Benutzers"
 					+"\n-p ... Passwort. Standard: keins"
-					+"\n-d ... Name der Datenbank"
-					+"\n-s ... Feld, nach dem sortiert werden soll. Standard: keines"
-					+"\n-r ... Sortierrichtung. Standard: ASC"
-					+"\n-w ... eine Bedingung in SQL-Syntax, die um Filtern der Tabelle verwendet wird. Standard: keine"
-					+"\n-t ... Trennzeichen, dass für die Ausgabe verwendet werden soll. Standard: ; "
-					+"\n-f ... Kommagetrennte Liste (ohne Leerzeichen) der Felder, die im Ergebnis enthalten sein sollen."
-					+"\n-o ... Name der Ausgabedatei. Standard: keine -> Ausgabe auf der Konsole"
-					+"-T ... Tabellenname");
-
+					+"\n-d ... Name der Datenbank");
 			System.out.println("--------------");
 		} catch (FileNotFoundException e) {
 			System.out.println("Achtung das Ausgabefile lautet ausgabe.txt");//Hilfestellung bei Fehlermeldung
