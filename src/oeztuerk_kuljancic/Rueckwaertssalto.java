@@ -18,7 +18,7 @@ import com.mysql.jdbc.ResultSetMetaData;
  * Erzeugt eine Konsolen-Anwendung, die den Inhalt einer beliebigen Tabelle
  * eines RDBMS als Textfile oder in der Konsole ausgibtausgibt 
  * 
- * @author Sefa Öztürk
+ * @author Sefa Öztürk, Kuljancic Mirza
  * @version 25-12-2015
  */
 public class Rueckwaertssalto {
@@ -26,14 +26,14 @@ public class Rueckwaertssalto {
 	public static void main(String[] args) {
 		Connection connection;
 		Statement stmt;
-		ResultSet rSet,rSet2;
+		ResultSet rSet,rSet2,rSet3;
 		//DatabaseMetaData db;
 
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
 		String p_ = "Fener1907";
-		String d_= "rueck";
+		String d_= "premiere";
 
 		//Ausgabeschreiber
 		PrintWriter ausgabe;
@@ -91,19 +91,25 @@ public class Rueckwaertssalto {
 			while (rSet.next()) {
 				tabellen.add(rSet.getString(1));
 			} 	
-			
+
 			//pk-Array beinhaltet alle PK
 			String[] pk=new String[tabellen.size()];
+			String[] fk=new String[tabellen.size()];
 			int c=0;//Counter für Array
-			
+
 			for(int k=0;k<tabellen.size();k++){
 				rSet2=meta.getPrimaryKeys(null, null, tabellen.get(k));
 				while (rSet2.next()) {
 					pk[c] =""+rSet2.getString("COLUMN_NAME");
 					c++;
 				}
+				//				rSet3=meta.getImportedKeys(null, null, tabellen.get(k));
+				//				while (rSet3.next()) {
+				//					fk[c] =""+rSet3.getString("COLUMN_NAME");
+				//					c++;
+				//				}
 			}
-			
+
 			//Dieses Array beinhaltet später alle Attribute
 			String a[]=new String[10];
 			for(int h=0;h<tabellen.size();h++){
@@ -130,15 +136,18 @@ public class Rueckwaertssalto {
 				}
 			}
 			a=hilf;
-			
+
 			//Ausgabe in Konsole und in Textfile
 			for(int x=0;x<tabellen.size();x++){
 				System.out.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
 				ausgabe.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
 			}
 			//Textfile schließen
-			ausgabe.close();//File-schließen
-
+			ausgabe.close();
+			//Verbindung unterbinden
+			connection.close();
+			//Statement schließen
+			stmt.close();
 
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
