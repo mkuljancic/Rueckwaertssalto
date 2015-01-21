@@ -19,16 +19,18 @@ import com.mysql.jdbc.ResultSetMetaData;
  * eines RDBMS als Textfile oder in der Konsole ausgibtausgibt 
  * 
  * @author Sefa Öztürk, Kuljancic Mirza
- * @version 25-12-2015
+ * @version 07-01-2015
  */
 public class Rueckwaertssalto {
-
+	private static Connection con;//Verbindung
+	private static Statement stmt;//Statement
+	private static ResultSet rSet,rSet2;//Rset-->Tabellen,Rset2-->PK und FK
+	
+	private static DatabaseMetaData meta ;//ist von Rset2 abhängig und liefert PK und FK
+	private static List<String> tabellen;//Hier werden alle Tabellennamen abgespeichert werden
+	private static PrintWriter ausgabe;
+	
 	public static void main(String[] args) {
-		Connection connection;
-		Statement stmt;
-		ResultSet rSet,rSet2,rSet3;
-		//DatabaseMetaData db;
-
 		//Standardattribute
 		String h_ = "localhost";
 		String u_ = "root";//System.getProperty("user.name");
@@ -36,7 +38,7 @@ public class Rueckwaertssalto {
 		String d_= "premiere";
 
 		//Ausgabeschreiber
-		PrintWriter ausgabe;
+		
 		//dient für die Fehlermeldung ""Gleiche Parameter
 
 		//Wenn keine Fehlermeldung auftritt, wird das Programm nach den folgenden Parametern verarbeitet.
@@ -68,30 +70,30 @@ public class Rueckwaertssalto {
 				}
 
 			}
+			//-------------------------------------------------------------------------------------------------------------
 			// Datenquelle erzeugen
 			Class.forName("com.mysql.jdbc.Driver");
 
 			// Verbindung herstellen
-			connection = DriverManager.getConnection("jdbc:mysql://" + h_+"/"+d_, u_, p_);//Endgültigen Parameter anwenden
+			con = DriverManager.getConnection("jdbc:mysql://" + h_+"/"+d_, u_, p_);//Endgültigen Parameter anwenden
 
 			// Abfrage vorbereiten und ausführen
-			stmt = connection.createStatement();
+			stmt = con.createStatement();
 
 			//Prüfen ob Tabellenname und die erwünschten Spalten vorhanden sind
-
 			rSet = stmt.executeQuery("SHOW TABLES");
-			//ausgabe=ausgabedatei
-			ausgabe= new PrintWriter("ausgabe.txt", "UTF-8");
+			
 			//DIent zum ausfindig machen der PK und FKs
-			java.sql.DatabaseMetaData meta = connection.getMetaData();
+			meta = (DatabaseMetaData) con.getMetaData();
+			//--------------------------------------------------------------------------------------------------------------
+			
 			//dynamische Liste für Anzahl der Tabellen
-			List<String> tabellen=new ArrayList<String>();
+			tabellen=new ArrayList<String>();
 
 			//Tabellennamen in ArrayList speichern
 			while (rSet.next()) {
 				tabellen.add(rSet.getString(1));
 			} 	
-
 			//pk-Array beinhaltet alle PK
 			String[] pk=new String[tabellen.size()];
 			String[] fk=new String[tabellen.size()];
@@ -103,11 +105,11 @@ public class Rueckwaertssalto {
 					pk[c] =""+rSet2.getString("COLUMN_NAME");
 					c++;
 				}
-				//				rSet3=meta.getImportedKeys(null, null, tabellen.get(k));
-				//				while (rSet3.next()) {
-				//					fk[c] =""+rSet3.getString("COLUMN_NAME");
-				//					c++;
-				//				}
+//				rSet2=meta.getImportedKeys(null, null, tabellen.get(k));
+//				while (rSet2.next()) {
+//					fk[c] =""+rSet2.getString("COLUMN_NAME");
+//					c++;
+//				}
 			}
 
 			//Dieses Array beinhaltet später alle Attribute
@@ -115,7 +117,7 @@ public class Rueckwaertssalto {
 			for(int h=0;h<tabellen.size();h++){
 				a[h]="";
 			}
-			//Dient zur Fehlerbehebung
+			
 			String  [] hilf=new String[a.length];
 			//Attribute in Array speichern
 			for(int co=0;co<tabellen.size();co++){
@@ -124,19 +126,22 @@ public class Rueckwaertssalto {
 					a[co]=a[co]+rSet.getString(1)+",";
 				}
 			}
+			//Dient zur BeistrichFehlerbehebung
 			//Hilfarray initialisieren
 			for(int h=0;h<tabellen.size();h++){
 				hilf[h]="";
 			}
 
-			//Hilfarray fehlerbeheben
+			//Hilfarray Beistrichfehler beheben
 			for(int k=0;k<tabellen.size();k++){
 				for(int j=0;j<a[k].length()-1;j++){
 					hilf[k]=hilf[k]+a[k].charAt(j);
 				}
 			}
 			a=hilf;
-
+			
+			//ausgabe=ausgabedatei
+			ausgabe= new PrintWriter("ausgabe.txt", "UTF-8");
 			//Ausgabe in Konsole und in Textfile
 			for(int x=0;x<tabellen.size();x++){
 				System.out.println(tabellen.get(x)+"("+a[x]+")"+"    <PK  "+pk[x]+">");
@@ -145,7 +150,7 @@ public class Rueckwaertssalto {
 			//Textfile schließen
 			ausgabe.close();
 			//Verbindung unterbinden
-			connection.close();
+			con.close();
 			//Statement schließen
 			stmt.close();
 
@@ -153,7 +158,6 @@ public class Rueckwaertssalto {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-
 			System.out.println("Parameter ungültig: \n-h ... Hostname des DBMS. Standard: localhost"
 					+"\n-u ... Benutzername. Standard: Benutzername des im Betriebssystem angemeldeten Benutzers"
 					+"\n-p ... Passwort. Standard: keins"
