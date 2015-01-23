@@ -25,7 +25,7 @@ import com.mysql.jdbc.ResultSetMetaData;
 public class Rueckwaertssalto {
 	private static Connection con;// Verbindung
 	private static Statement stmt;// Statement
-	private static ResultSet rSet, rSet2;// Rset-->Tabellen,Rset2-->PK und FK
+	private static ResultSet rSet;// Rset-->Tabellen,Rset2-->PK und FK
 
 	private static DatabaseMetaData meta;// ist von Rset2 abhängig und liefert
 											// PK und FK
@@ -38,7 +38,7 @@ public class Rueckwaertssalto {
 		String h_ = "localhost";
 		String u_ = "root";// System.getProperty("user.name");
 		String p_ = "Fener1907";
-		String d_ = "tvprog_3bhit";
+		String d_ = "rueck";
 
 		// Ausgabeschreiber
 
@@ -111,14 +111,19 @@ public class Rueckwaertssalto {
 			// pk-Array beinhaltet alle PK
 			//String[] pk = new String[tabellen.size()];
 			String[] pk = new String[tabellen.size()];
-
+			String[] fk = new String[tabellen.size()];
 			int c = 0;// Counter für Array
 			
 			for (int k = 0; k < tabellen.size(); k++) {
-				rSet2 = meta.getPrimaryKeys(null, null, tabellen.get(k));
+				rSet = meta.getPrimaryKeys(null, null, tabellen.get(k));
 				pk[c]="";
-				while (rSet2.next()) {
-					pk[c] = pk[c]+rSet2.getString("COLUMN_NAME")+" ";
+				while (rSet.next()) {
+					pk[c] = pk[c]+rSet.getString("COLUMN_NAME")+" ";
+				}
+				rSet = meta.getImportedKeys(null, null, tabellen.get(k));
+				fk[c]="";
+				while (rSet.next()) {
+					fk[c] = fk[c]+rSet.getString("FKCOLUMN_NAME")+" ";
 				}
 				c++;
 			}
@@ -155,7 +160,7 @@ public class Rueckwaertssalto {
 			ausgabe = new PrintWriter("ausgabe.txt", "UTF-8");
 			// Ausgabe in Konsole und in Textfile
 			for (int x = 0; x < tabellen.size(); x++) {
-				System.out.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + ">");
+				System.out.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + " > "+" < FK:  "+fk[x] +" >");
 				ausgabe.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + ">");
 			}
 			// Textfile schließen
