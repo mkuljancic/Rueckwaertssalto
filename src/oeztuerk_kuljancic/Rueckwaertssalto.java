@@ -158,10 +158,14 @@ public class Rueckwaertssalto {
 
 			// ausgabe=ausgabedatei
 			ausgabe = new PrintWriter("ausgabe.txt", "UTF-8");
+			
 			// Ausgabe in Konsole und in Textfile
+			System.out.println("Relationen Model: "+d_+"\n");
+			ausgabe.println("Relationen Model: "+d_);
+			ausgabe.println("");
 			for (int x = 0; x < tabellen.size(); x++) {
 				System.out.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + " > "+" < FK:  "+fk[x] +" >");
-				ausgabe.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + ">");
+				ausgabe.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + ">"+" < FK:  "+fk[x] +" >");
 			}
 			// Textfile schlieﬂen
 			ausgabe.close();
