@@ -14,17 +14,30 @@ import com.mysql.jdbc.DatabaseMetaData;
  * @version 07-01-2015
  */
 public class Rueckwaertssalto {
-	private Connection con;// Verbindung
-	private Statement stmt;// Statement
-	private ResultSet rSet;
+	//-----------Verbindungsbedingungen-----------\\
+	private Connection con;		//Connection-Variable
+	private Statement stmt;		//Statement
+	private ResultSet rSet;		//ResultSet
+	//-----------Verbindungsbedingungen-----------\\
 
-	private DatabaseMetaData meta;
-	private List<String> tabellen;
-	private PrintWriter ausgabe;
-	private String[] fk, pk, a;
+	//--------Interface--------\\
+	private DatabaseMetaData meta;		//PK- und FK-Quelle
+	//--------Interface--------\\
+	
+	//-------Hilfsarrays-------\\
+	private List<String> tabellen;		//Tabellennamen
+	private String[] fk, pk, a;			//FK,PK und Attribute
+	private String h_, u_, p_, d_;		//Connection-Parameter
+	//-------Hilfsarrays-------\\
+	
+	//--------Ausgabe--------\\
+	private PrintWriter ausgabe;		//RM in .TXT File 
+	//--------Ausgabe--------\\
 
-	private String h_, u_, p_, d_;
-
+	/**
+	 * Standard-Konstruktor: 
+	 * initialisiert Standard Connection-Parameter
+	 */
 	public Rueckwaertssalto() {
 		h_ = "localhost";
 		u_ = "root";
@@ -32,44 +45,45 @@ public class Rueckwaertssalto {
 		d_ = "rueck";
 	}
 
+	/**
+	 * Diese Methode lässt dem Benutzer in der Konsole 1-4 Connection Parameter eingeben,
+	 * der Zweck besteht darin, dass eine erfolgreiche Verbindung zwischen der DB und Java
+	 * hergestellt werden kann. Es werden Hostname,Benutzername,Passwort und Datenbankname
+	 * abgefragt.
+	 * 
+	 * @param args
+	 */
 	public void konsolenEingabe(String[] args) {
-		// args: ist eine Referenzvariable, die alle Parameter in der
-		// Konsole in ein Array speichert
-		// Die System.outs zeigen auf der Konsole welche Eingaben
-		// erfolgreich durchgeführt wurden
-		for (int j = 0; j < args.length; j++) {// Länge der Parameter
-			switch (args[j]) {// switch-case: Wenn eins von den unteren
-			// Fällen auftaucht, dann soll diesbezüglich
-			// gehandelt werden
+		// args: ist eine Referenzvariable, die alle Parameter in der Konsole in ein Array speichert
+		for (int j = 0; j < args.length; j++) {
+			switch (args[j]) {
 			case "-h":
-				h_ = args[j + 1];// Parameter mit der Standard-Variable
-				// überschreiben
-				System.out.println("Hostname: " + h_);
+				h_ = args[j + 1];
 				break;
 
 			case "-u":
-				u_ = args[j + 1];// Parameter mit der Standard-Variable
-				// überschreiben
-				System.out.println("Benutzername: " + u_);
+				u_ = args[j + 1];
 				break;
 
 			case "-p":
-				p_ = args[j + 1];// Parameter mit der Standard-Variable
-				// überschreiben
-				System.out.println("Passwort: " + p_);
+				p_ = args[j + 1];
 				break;
 
 			case "-d":
-				d_ = args[j + 1];// Parameter mit der Standard-Variable
-				// überschreiben
-				System.out.println("Datenbankname: " + d_);
+				d_ = args[j + 1];
 				break;
 			}
 
 		}
 
 	}
-
+	
+	/**
+	 * Diese Mehode stellt die Verbindung zwischen der DB und Java her.
+	 * 
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 */
 	public void verbindung() throws SQLException, ClassNotFoundException {
 		// Datenquelle erzeugen
 		Class.forName("com.mysql.jdbc.Driver");
@@ -80,7 +94,15 @@ public class Rueckwaertssalto {
 		// Abfrage vorbereiten und ausführen
 		stmt = con.createStatement();
 	}
-
+	
+	/**
+	 * Hier wird sozusagen in einen dynamischen Array die Tabellennamen 
+	 * der Datenbank gespeichert.
+	 * 
+	 * @throws SQLException
+	 * @throws FileNotFoundException
+	 * @throws UnsupportedEncodingException
+	 */
 	public void tabellenName() throws SQLException, FileNotFoundException, UnsupportedEncodingException {
 		// Tabellennamen anzeigen
 		rSet = stmt.executeQuery("SHOW TABLES");
@@ -93,6 +115,12 @@ public class Rueckwaertssalto {
 		}
 	}
 
+	/**
+	 * Diese Methode speichert die Primary- und Foreign Keys in
+	 * String-Arrays
+	 * 
+	 * @throws SQLException
+	 */
 	public void pk_fk() throws SQLException {
 		// pk-Array beinhaltet alle PK
 		pk = new String[tabellen.size()];
@@ -103,37 +131,45 @@ public class Rueckwaertssalto {
 
 		int c = 0;// Counter für Array-Index
 		for (int k = 0; k < tabellen.size(); k++) {
-			rSet = meta.getPrimaryKeys(null, null, tabellen.get(k));
-			pk[c] = "";
+			rSet = meta.getPrimaryKeys(null, null, tabellen.get(k));	//liefert die PKs
+			pk[c] = "";		//Dem PK-Array ein Anfangswert zuweisen
+
 			while (rSet.next()) {
-				pk[c] = pk[c] + rSet.getString("COLUMN_NAME") + " ";
+				pk[c] = pk[c] + rSet.getString("COLUMN_NAME") + " ";	//PKs hinzufügen
 			}
 
 			if (pk[c].equals("")) {
-				pk[c] = "no PK";
+				pk[c] = "no PK";		//Falls keine PKs vorhanden sind, wird "no PK" zurückgegeben
 			}
 
-			rSet = meta.getImportedKeys(null, null, tabellen.get(k));
-			fk[c] = "";
+			rSet = meta.getImportedKeys(null, null, tabellen.get(k));	//liefert die FKs
+			fk[c] = "";		//Dem FK-Array ein Anfangswert zuweisen
+			
 			while (rSet.next()) {
-				fk[c] = fk[c] + rSet.getString("FKCOLUMN_NAME") + " ";
+				fk[c] = fk[c] + rSet.getString("FKCOLUMN_NAME") + " ";		//FKs hinzufügen
 			}
 
 			if (fk[c].equals("")) {
-				fk[c] = "no FK";
+				fk[c] = "no FK";		//Falls keine FKs vorhanden sind, wird "no PK" zurückgegeben
 			}
-			c++;
+			c++;	//counter erhöhen und zum nächstes Index springen
 		}
 	}
-
+	
+	/**
+	 * In diser Methode werden die Attribute für je Tabelle wiederum
+	 * in einem String-Array gespeichert
+	 * 
+	 * @throws SQLException
+	 */
 	public void attribute() throws SQLException {
-		// Dieses Array beinhaltet später alle Attribute
-		a = new String[tabellen.size()];
+		a = new String[tabellen.size()];	//Attribut-Array generieren
+		
 		for (int h = 0; h < tabellen.size(); h++) {
-			a[h] = "";
+			a[h] = "";		//Anfangswert zuweisen
 		}
 
-		String[] hilf = new String[a.length];
+
 		// Attribute in Array speichern
 		for (int co = 0; co < tabellen.size(); co++) {
 			rSet = stmt.executeQuery("DESCRIBE " + tabellen.get(co));
@@ -141,30 +177,39 @@ public class Rueckwaertssalto {
 				a[co] = a[co] + rSet.getString(1) + ",";
 			}
 		}
-		// Dient zur BeistrichFehlerbehebung
-		// Hilfarray initialisieren
+		
+		//Das Attributs-Array beinhaltet Beistrichfehler,
+		//deswegen wird ein Hilfarray initialisiert.
+		String[] hilf = new String[a.length];	
 		for (int h = 0; h < tabellen.size(); h++) {
-			hilf[h] = "";
+			hilf[h] = "";		//Anfangswert zuweisen
 		}
 
 		// Hilfarray Beistrichfehler beheben
 		for (int k = 0; k < tabellen.size(); k++) {
 			for (int j = 0; j < a[k].length() - 1; j++) {
-				hilf[k] = hilf[k] + a[k].charAt(j);
+				hilf[k] = hilf[k] + a[k].charAt(j);		//Attribute ohne Beistrichfehler hinzufügen
 			}
 		}
-		a = hilf;
+		a = hilf;	//Stammarray mit dem neuen ersetzen
 	}
 
+	/**
+	 * Wenn diese Methode ausgeführt wird, wird das RM auf
+	 * der Konsole angezeigt und in einem .TXT File gespeichert.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws UnsupportedEncodingException
+	 */
 	public void ausgabe() throws FileNotFoundException, UnsupportedEncodingException {
-		// ausgabe=ausgabedatei
+		//ausgabe
 		ausgabe = new PrintWriter("ausgabe.txt", "UTF-8");
-
-		// Ausgabe in Konsole und in Textfile
+		//Ausgabe in Konsole und in Textfile
 		System.out.println("Relationen Model: " + d_ + "\n");
 		ausgabe.println("Relationen Model: " + d_);
 		ausgabe.println("");
-
+		
+		//Ausgabe des Arrays
 		for (int x = 0; x < tabellen.size(); x++) {
 			System.out.println(tabellen.get(x) + "(" + a[x] + ")" + "    < PK:  " + pk[x] + " > " + " < FK:  " + fk[x]
 					+ " >");
@@ -172,7 +217,12 @@ public class Rueckwaertssalto {
 					+ " >");
 		}
 	}
-
+	/**
+	 * 
+	 * Programm fertigstellen
+	 * 
+	 * @throws SQLException
+	 */
 	public void abschluss() throws SQLException {
 		// Textfile schließen
 		ausgabe.close();
